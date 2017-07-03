@@ -1,4 +1,4 @@
-package edu.hit1162800204.experiment8;
+package edu.hit116xxxxxxxx.experiment8;
 
 import java.awt.EventQueue;
 import java.awt.Graphics;

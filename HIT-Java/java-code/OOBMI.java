@@ -1,4 +1,4 @@
-package edu.hit1162800204.experiment4;
+package edu.hit116xxxxxxxx.experiment4;
 
 import java.util.Scanner;
 import java.util.Random;
