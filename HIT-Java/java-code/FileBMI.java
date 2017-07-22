@@ -1,4 +1,4 @@
-package edu.hit116xxxxxxxx.experiment6;
+package edu.hitXXXX.experimentY;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -11,8 +11,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
-
-
 
 public class FileBMI {
 	static List<Student> students=new ArrayList<Student>();

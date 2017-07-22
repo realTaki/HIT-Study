@@ -1,403 +1,657 @@
-package edu.hit116xxxxxxxx.experiment7;
+package edu.hitXXXX.experimentY;
 
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Random;
-import java.util.Scanner;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartFrame;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.xy.IntervalXYDataset;
+import org.jfree.data.xy.XYBarDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 
+public class SwingBMI extends JFrame {
 
-
-
-public class SwingBMI extends JFrame  {
 	private static final long serialVersionUID = 1L;
-	static List<Student> students=new ArrayList<Student>();
-	public SwingBMI(){}
+	private static JPanel contentPane;
+	SwingBMI frame;
+	static ArrayList<Student> students = new ArrayList<Student>();
 
-	public static void main(String[] agrv){
-		SwingBMI stu=new SwingBMI();	
-		final JFrame frame = new JFrame("CMS");	
-		JMenuBar menu = new JMenuBar();
-
-		JMenu opMenu = new JMenu("Operations");
-		JMenuItem listitem = new JMenuItem("List students");
-		listitem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				stu.showStudetns(frame);
-				
-			}
-		});
-		opMenu.add(listitem);
-		menu.add(opMenu);
-		frame.setJMenuBar(menu);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setBounds(5, 5, 500, 300);
+	public static void main(String[] args) {
+	
+		SwingBMI frame = new SwingBMI();
 		frame.setVisible(true);
-		
-		//frame.setResizable(false);
-
-	}
-	
-	private void showStudetns(JFrame frame ){
-		new resultPanel(frame);
-		setVisible(true);
+		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);	
 	}
 
-	public static void menu(Scanner in){
+	public static class Student {
 
-		System.out.printf("do you want:\n"
-				+ "1完成学生信息生成及文件保存；\n"
-				+ "2学生查询、增加、删除及修改\n"
-				+ "3计算并显示统计结果\n"
-				+ "4读取学生信息\n");
-		switch(in.nextInt()){
-		case 1:	String str;
-			do{	
-				System.out.println("please input the ID");
-				genStudents(in.next());
-				System.out.println("Do you want to creat next random student?");
-				str=in.next();
-			}while(str.compareTo("Y")==0||str.compareTo("y")==0);
-			break;
-		case 2:findStudent(students,in);	
-			break;
-		case 3:
-			double aver=AverofBMI(),mod=ModofBMI(),med=MedianofBMI(),var=VarianceofBMI();
-			System.out.printf("\nsort by bmi\n");
-			printStatics(aver,mod,med,var);
-			break;
-		default:readFile("student.txt");break;
-		}saveFile(students, "student.txt");
-	}
-
-	public static void saveFile(List<Student> students2, String filename){
-		File file = new File("."+File.separator+filename);
-	    if(!file.exists()) { 
-	    	 try {
-		            file.createNewFile(); 
-		            System.out.println(file.getName() + " 创建成功");
-		        } catch (IOException e) {
-		            e.printStackTrace();
-		        }
-	    }
-	    FileWriter writer;
-    	try {
-    	      writer = new FileWriter(filename, false);
-    	      writer.write(String.format("ID\tNAME\tHEIGHT\tWEIGHT\tBMI\r\n"));
-              for(Student st: students2){
-            	  writer.write(String.format("%s\t%s\t%.2f\t%.2f\t%.2f\r\n", 
-            			  st.number,st.name,st.height,st.weight,st.bmi));
-              }
-              writer.close();
-    	} catch (IOException e) {
-    		e.printStackTrace();
-    	}
-    	System.out.println("SAVE SUCCESS!");
-	}
-	
-	public static  ArrayList<Student>  readFile(String filename){
-		ArrayList<Student> buff=new ArrayList<Student>();	
-		File file = new File("."+File.separator+filename);
-	    if(file.exists()) { 
-	        try {
-				BufferedReader reader =new BufferedReader(new FileReader(file));
-	            String tempString = null;
-	            tempString = reader.readLine();
-	            while ((tempString = reader.readLine()) != null) {
-	                String[] a= tempString.split("\t");
-	                Student st= new SwingBMI().new Student(a[0],a[1],
-	                		Double.parseDouble(a[2]),Double.parseDouble(a[3]));
-	                buff.add(st);
-	            }
-	            reader.close();
-	            System.out.println("READ SUCCESS!");
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (NumberFormatException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				
-				e.printStackTrace();
-			}
-	    } else {
-	        System.out.println("the file have noe been found!!");
-	    }    
-	    return buff;
-	}
-	
-	public ArrayList<Student> genTestStudents() {
-		ArrayList<Student> students=new ArrayList<Student>();
-		Random ron=new Random();
-		char Char[]={
-				'A','B','C','D','E','F','G',
-				'H','I','J','K','L','M','N',
-				'O','P','Q','R','S','T',
-				'U','V','W','X','Y','Z',
-				'a','b','c','d','e','f','g',
-				'h','i','j','k','l','m','n',
-				'o','p','q','r','s','t',
-				'u','v','w','x','y','z'};
-		for(int i=0;i<20;i++){
-			String id=String.valueOf(ron.nextInt(100)+100);
-			if(isExists(id)){
-				i--;
-				continue;
-			}
-			String name="";
-			for(int j=0;j<5;j++){name+=Char[ron.nextInt(46)];}
-			double height=ron.nextDouble()+1;
-			double weight=ron.nextDouble()*60+40;
-			students.add(new SwingBMI().new Student(id,name,height,weight));
+		String ID=null,name=null;
+		double height=0.0,weight=0.0,bmi=0.0;
+		public Student(){}
+		public Student(String number,String name,double height,double weight){
+			this.ID=number;
+			this.name=name;
+			this.height=height;
+			this.weight=weight;
+			this.bmi=weight/(height*height);
 		}
-		System.out.println("Success!");
-		return students;
 	}
-	
-	public static void genStudents(String id){
-		
-		Random ron=new Random();
-		char Char[]={
-				'A','B','C','D','E','F','G',
-				'H','I','J','K','L','M','N',
-				'O','P','Q','R','S','T',
-				'U','V','W','X','Y','Z',
-				'a','b','c','d','e','f','g',
-				'h','i','j','k','l','m','n',
-				'o','p','q','r','s','t',
-				'u','v','w','x','y','z'};
-		
-			if(isExists(id))return;
-			String name="";
-			for(int j=0;j<5;j++){name+=Char[ron.nextInt(46)];}
-			double height=ron.nextDouble()+1;
-			double weight=ron.nextDouble()*60+40;
-			students.add(new SwingBMI().new Student(id,name,height,weight));
-		
-		System.out.println("Success!");
-	}
-	
-	public static Student inputStudent(Scanner in){
-		
-		System.out.println("please input the ID,name,height and weight:");
-		
-		String number=in.next();
-		String name=in.next();
-		double height=in.nextDouble();
-		double weight=in.nextDouble();
-		Student student=new SwingBMI().new Student(number,name,height,weight);
 
-		return student;
-	}
-	
 	public static boolean isExists(String id){
 		for(Iterator<Student> iter = students.iterator();iter.hasNext();){
 			Student temp=iter.next();
-			if(id.compareTo(temp.number)==0)return true;
+			if(temp.ID==null)continue;
+			if(id.compareTo(temp.ID)==0)return true;
 		}
 		return false;
 	}
-	
-	public static double AverofBMI(){
-		double sum=0;
-		for(Iterator<Student> iter = students.iterator();iter.hasNext();)
-			sum+=iter.next().bmi;
+
+	public static void genStudents(int n) {
+		Random ron=new Random();
 		
-		return sum/students.size();
-	}
-	
-	public static double ModofBMI(){
+		char Char[]={
+				'A','B','C','D','E','F','G',
+				'H','I','J','K','L','M','N',
+				'O','P','Q','R','S','T',
+				'U','V','W','X','Y','Z',
+				'a','b','c','d','e','f','g',
+				'h','i','j','k','l','m','n',
+				'o','p','q','r','s','t',
+				'u','v','w','x','y','z'};
 		
-		int hash[]=new int[10000];
-		for(Iterator<Student> iter = students.iterator();iter.hasNext();)
-			hash[(int)iter.next().bmi*100-1]++;
-		int max=0;
-		for(int i=1;i<hash.length;i++){
-			if(hash[i]>hash[max])max=i;
-		}
-		return max/100.0;
-	}	
-	
-	public static double MedianofBMI(){
-		comparator.SortbyBMI();
-		if(students.size()%2==0)
-			return students.get(students.size()/2).bmi+students.get(students.size()/2-1).bmi;
-		
-		return students.get(students.size()/2).bmi;
-	}	
-	
-	public static void findStudent(List<Student> stu,Scanner in){
-		System.out.println("please input the id:");
-		String id=in.next();
-		
-		for(int i=0;i<students.size();i++){
-			
-			if(id.compareTo(students.get(i).number)==0){
-				System.out.printf("The ID has been found,do you want:\n"
-						+ "1 modify\n"
-						+ "2 delete\n");
-				switch(in.nextInt()){
-				case 1:students.set(i,inputStudent(in));break;
-				case 2:students.remove(i);break;
-				default:System.out.println("ERROR CHIOSE");break;
+		for(int i=0;i<n;i++){
+			String number=String.valueOf(100+ron.nextInt(100));
+			if(isExists(number)){
+				i--;
 				}
-				return;
+			else {
+			String name="";
+			for(int j=0;j<5;j++){name+=Char[ron.nextInt(46)];}
+			double height=ron.nextDouble()+1;
+			double weight=ron.nextDouble()*60+40;
+			students.add(new Student(number,name,height,weight));
 			}
 		}
-		System.out.printf("The ID has not been found,do you want creat?input 1 to do it\n");
-		if(in.nextInt()==1)stu.add(inputStudent(in));
 	}
-	
-	public static double VarianceofBMI(){
-		double sum=0;
-		double aver=AverofBMI();
-		for(Iterator<Student> iter = students.iterator();iter.hasNext();){
-			Student temp=iter.next();
-			sum+=(temp.bmi-aver)*(temp.bmi-aver);
-		}
-			
-		
-		return sum/students.size();
-	}
-	
-	public static void printStatics(double aver,double mod,double median,double variance){
-		
-		System.out.printf("Average is:%.2f\tMode is:%.2f\tMedian is:%.2f\tVariance is:%.2f\n"
-				,aver,mod,median,variance);
-		System.out.printf("ID\tNAME\tHeight\tWeight\tBMI\n");
-		for(Iterator<Student> iter = students.iterator();iter.hasNext();){
-			Student temp=iter.next();
-			System.out.printf("%s\t%s\t%.2f\t%.2f\t%.2f\n",
-					temp.number,temp.name,
-					temp.height,temp.weight,temp.bmi);
-		}
-	}
-	
+
 	public static class comparator{
 		
 		public static void SortbyBMI(){
-			for(int i=0;i<students.size();i++){
-				int min=i;
-				for(int j=i+1;j<students.size();j++){
-					if(students.get(j).bmi<students.get(min).bmi)min=j;
-				}
-				if(min!=i){
-					Student temp=students.get(i);
-					students.set(i, students.get(min));
-					students.set(min,temp);
-				}
-			}
+				
+			Collections.sort(students, new Comparator<Student>() {
+	            @Override
+	            public int compare(Student o1, Student o2) {
+	                //升序
+	                return (int)(100*o1.bmi-100*o2.bmi);
+	            }
+	        });
 		}
 		
 		public static void SortbyID(){
-			for(int i=0;i<students.size();i++){
-				int min=i;
-				for(int j=i+1;j<students.size();j++){
-					if(students.get(j).number.compareTo(students.get(min).number)<0)min=j;
-				}
-				if(min!=i){
-					Student temp=students.get(i);
-					students.set(i, students.get(min));
-					students.set(min,temp);
-				}
-			}
+			Collections.sort(students, new Comparator<Student>() {
+	            @Override
+	            public int compare(Student o1, Student o2) {
+	                //升序
+	                return o1.ID.compareTo(o2.ID);
+	            }
+	        });
 		}
 		
 		public static void SortbyNAME(){
-			for(int i=0;i<students.size();i++){
-				int min=i;
-				for(int j=i+1;j<students.size();j++){
-					if(students.get(j).name.compareTo(students.get(min).name)<0)min=j;
-				}
-				if(min!=i){
-					Student temp=students.get(i);
-					students.set(i, students.get(min));
-					students.set(min,temp);
-				}
-			}
+			Collections.sort(students, new Comparator<Student>() {
+	            @Override
+	            public int compare(Student o1, Student o2) {
+	                //升序
+	                return o1.name.compareTo(o2.name);
+	            }
+	        });
 		}
 		
 		
 		public static void SortbyHeight(){
-			for(int i=0;i<students.size();i++){
-				int min=i;
-				for(int j=i+1;j<students.size();j++){
-					if(students.get(j).height<students.get(min).height)min=j;
-				}
-				if(min!=i){
-					Student temp=students.get(i);
-					students.set(i, students.get(min));
-					students.set(min,temp);
-				}
-			}
+			Collections.sort(students, new Comparator<Student>() {
+	            @Override
+	            public int compare(Student o1, Student o2) {
+	                //升序
+	                return (int)(100*o1.height-100*o2.height);
+	            }
+	        });
 		}
 		
 		public static void SortbyWeight(){
-			for(int i=0;i<students.size();i++){
-				int min=i;
-				for(int j=i+1;j<students.size();j++){
-					if(students.get(j).weight<students.get(min).weight)min=j;
+			Collections.sort(students, new Comparator<Student>() {
+	            @Override
+	            public int compare(Student o1, Student o2) {
+	                //升序
+	                return (int)(100*o1.weight-100*o2.weight);
+	            }
+	        });
+		}
+	}
+	
+	public SwingBMI() {
+		
+		setBounds(100, 100, 750, 800);
+		JMenuBar menu = new JMenuBar();
+		JMenu opMenu = new JMenu("Operations");
+		JMenu helpMenu = new JMenu("Help");
+		JMenu statisticsMenu = new JMenu("统计");
+		
+		JMenuItem QueryMenu = new JMenuItem("查改删");
+		QueryMenu.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				queryStudent();
+		}
+		});
+		opMenu.add(QueryMenu);
+		
+		JMenuItem inputMenu = new JMenuItem("输入");
+		inputMenu.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				inputStudent();
+		}
+		});
+		opMenu.add(inputMenu);
+	
+		opMenu.add(statisticsMenu);
+		
+		JMenuItem heightMenu = new JMenuItem("身高");
+		heightMenu.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				Statics(1);
+		}
+		});
+		statisticsMenu.add(heightMenu);
+		
+		JMenuItem weightMenu = new JMenuItem("体重");
+		weightMenu.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				Statics(2);
+		}
+		});
+		statisticsMenu.add(weightMenu);
+		
+		JMenuItem BMIMenu = new JMenuItem("BMI");
+		BMIMenu.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				Statics(3);	
+		}
+		});
+		statisticsMenu.add(BMIMenu);
+		
+		JMenuItem aboutitem = new JMenuItem("About ");
+		aboutitem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				showHelp();
+			}
+		});
+		helpMenu.add(aboutitem);
+		
+		menu.add(opMenu);
+		menu.add(helpMenu);
+		setJMenuBar(menu);
+		queryStudent();
+	}
+	
+	public void showHelp(){
+		JOptionPane.showMessageDialog(null,
+				"欢迎使用BMI统计分析系统\n作者：hitxxxxn",
+				"Ablout", JOptionPane.INFORMATION_MESSAGE);		
+	}
+
+	public void queryStudent(){
+		contentPane=new JPanel();
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		contentPane.setLayout(null);
+		
+		JLabel lblbmi = new JLabel("BMI统计分析系统——学生列表");
+		lblbmi.setBounds(45, 5, 682, 64);
+		lblbmi.setFont(new Font("等线", Font.PLAIN, 45));
+		contentPane.add(lblbmi);
+		
+		
+		JButton hbotton=new JButton("按身高排序");
+		hbotton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				comparator.SortbyHeight();
+				showStudent();
+		}
+		});
+		hbotton.setBounds(30, 70, 120, 30);
+		contentPane.add(hbotton);
+		
+		JButton wbotton=new JButton("按体重排序");
+		wbotton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				comparator.SortbyWeight();
+				showStudent();
+		}
+		});
+		wbotton.setBounds(30, 110, 120, 30);
+		contentPane.add(wbotton);
+		
+		JButton nbotton=new JButton("按姓名排序");
+		nbotton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				comparator.SortbyNAME();	
+				showStudent();
+		}
+		});
+		nbotton.setBounds(30,150, 120, 30);
+		contentPane.add(nbotton);
+		
+		JButton ibotton=new JButton("按ID排序");
+		ibotton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				comparator.SortbyID();
+				showStudent();
+		}
+		});
+		ibotton.setBounds(30, 190, 120, 30);
+		contentPane.add(ibotton);
+		
+		JButton bbotton=new JButton("按BMI排序");
+		bbotton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				comparator.SortbyBMI();	
+				showStudent();
+		}
+		});
+		bbotton.setBounds(30, 230, 120, 30);
+		contentPane.add(bbotton);
+		
+		JLabel label = new JLabel("学号：");
+		label.setBounds(30, 270, 120, 30);
+		contentPane.add(label);
+		
+		final JTextField 	textField1= new JTextField();
+		textField1.setBounds(30, 310, 120, 30);
+		contentPane.add(textField1);
+		textField1.setColumns(10);
+		
+		JButton sibotton=new JButton("按学号查询");
+		sibotton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				int flag=findStudent(1,textField1.getText());
+				searchStudent(flag);
+				if(flag<0)
+				JOptionPane.showMessageDialog(null,"该学生不存在！","Warning",JOptionPane.WARNING_MESSAGE);
+		}
+		});
+		sibotton.setBounds(30, 350, 120, 30);
+		contentPane.add(sibotton);
+		
+		JLabel labe2 = new JLabel("姓名：");
+		labe2.setBounds(30, 390, 120, 30);
+		contentPane.add(labe2);
+		
+		final JTextField 	textField2= new JTextField();
+		textField2.setBounds(30, 430, 120, 30);
+		contentPane.add(textField2);
+		textField2.setColumns(10);
+		
+		JButton snbotton=new JButton("按姓名查询");
+		snbotton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				int flag=findStudent(1,textField2.getText());
+				searchStudent(flag);
+				if(flag<0)
+				JOptionPane.showMessageDialog(null,"该学生不存在！","Warning",JOptionPane.WARNING_MESSAGE);
+		}
+		});
+		snbotton.setBounds(30, 470, 120, 30);
+		contentPane.add(snbotton);
+		
+		final JTextField 	textField3= new JTextField();
+		textField3.setBounds(180, 650, 120, 30);
+		contentPane.add(textField3);
+		textField3.setColumns(10);
+		
+		final JTextField 	textField4= new JTextField();
+		textField4.setBounds(310, 650, 120, 30);
+		contentPane.add(textField4);
+		textField4.setColumns(10);
+		
+		final JTextField 	textField5= new JTextField();
+		textField5.setBounds(440, 650, 120, 30);
+		contentPane.add(textField5);
+		textField5.setColumns(10);
+		
+		final JTextField 	textField6= new JTextField();
+		textField6.setBounds(570, 650, 120, 30);
+		contentPane.add(textField6);
+		textField6.setColumns(10);
+		
+		JButton delbotton=new JButton("按学号删除");
+		delbotton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				int flag=findStudent(1,textField1.getText());
+				if(flag>-1){
+					students.remove(flag);
+					JOptionPane.showMessageDialog(null,"删除成功","提示",JOptionPane.WARNING_MESSAGE);
+					searchStudent(-1);
+					showStudent();
+				}else{
+					JOptionPane.showMessageDialog(null,"该学生不存在","提示",JOptionPane.WARNING_MESSAGE);
 				}
-				if(min!=i){
-					Student temp=students.get(i);
-					students.set(i, students.get(min));
-					students.set(min,temp);
+		}
+		});
+		delbotton.setBounds(30, 570, 120, 30);
+		contentPane.add(delbotton);
+		
+		JButton modifybotton=new JButton("按学号修改");
+		modifybotton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				int flag=findStudent(1,textField1.getText());
+				if(flag>-1){
+					students.set(flag,inputStudent(textField3.getText(),
+							textField4.getText(),textField5.getText(),textField6.getText()));
+					JOptionPane.showMessageDialog(null,"修改成功","提示",JOptionPane.WARNING_MESSAGE);
+					searchStudent(flag);
+					showStudent();
+				}else{
+					JOptionPane.showMessageDialog(null,"该学生不存在","提示",JOptionPane.WARNING_MESSAGE);
+				}
+		}
+		});
+		modifybotton.setBounds(30, 650, 120, 30);
+		contentPane.add(modifybotton);
+		
+		searchStudent(-1);
+		showStudent();
+		setContentPane(contentPane);
+		setVisible(true);
+	}
+	
+	public int findStudent(int mode,String key){
+		if(mode==1)for(int i=0;i<students.size();i++){		
+			if(key.compareTo(students.get(i).ID)==0){
+				return i;
+			}
+		}
+		else for(int i=0;i<students.size();i++){		
+			if(key.compareTo(students.get(i).name)==0){
+				return i;
+			}
+			}
+		return -1;
+	}
+	
+	public void showStudent(){
+		ArrayList<Student> alst = students;
+		String sb = "学号\t姓名\t身高\t体重\tBMI\n";
+		JTextArea textArea= new JTextArea();
+		textArea.setFont(new Font("Microsoft YaHei UI Light", Font.BOLD, 15));
+		textArea.setBounds(180, 70, 550, 450);
+		textArea.setEditable(false);
+		contentPane.add(textArea);
+		for (Student st : alst) {
+			sb = sb + String.format("%s\t%s\t%.2f\t%.2f\t%.2f\t%n", st.ID,
+				st.name, st.height, st.weight, st.bmi);
+		}
+		JScrollPane scrollBar = new JScrollPane(textArea);
+		scrollBar.setBounds(180, 70, 550, 450);
+		scrollBar.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollBar.setVisible(true);
+		contentPane.add(scrollBar);
+		textArea.setText(sb);
+	}
+
+	public void searchStudent(int i) {
+		Student stu;
+		String sb = "学号\t姓名\t身高\t体重\tBMI\n";
+		if(i>-1){
+			stu=students.get(i);
+			sb = sb + String.format("%s\t%s\t%.2f\t%.2f\t%.2f\t%n", stu.ID,
+					stu.name, stu.height, stu.weight, stu.bmi);
+		}else sb += "无\t无\t无\t无\t无\n";
+	
+		
+		JTextArea textArea= new JTextArea();
+		textArea.setFont(new Font("Microsoft YaHei UI Light", Font.BOLD, 15));
+		textArea.setBounds(180, 530, 550, 100);
+		textArea.setEditable(false);
+		contentPane.add(textArea);
+
+		JScrollPane scrollBar = new JScrollPane(textArea);
+		scrollBar.setBounds(180, 530, 550, 80);
+		scrollBar.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollBar.setVisible(true);
+		contentPane.add(scrollBar);
+		textArea.setText(sb);
+		
+		JLabel labe1 = new JLabel(String.format("学号　　姓名　　身高　　体重　　BMI"));
+		labe1.setBounds(180, 610, 550, 30);
+		contentPane.add(labe1);
+		
+
+	}
+
+	public void inputStudent()  {
+		contentPane=new JPanel();
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		contentPane.setLayout(null);
+		
+		JLabel lblbmi = new JLabel("BMI统计分析系统——信息登记");
+		lblbmi.setBounds(45, 5, 682, 64);
+		lblbmi.setFont(new Font("等线", Font.PLAIN, 45));
+		contentPane.add(lblbmi);
+		
+		final JTextField 	textField1= new JTextField();
+		final JTextField 	textField2= new JTextField();
+		final JTextField 	textField3= new JTextField();
+		final JTextField 	textField4= new JTextField();
+		final JTextField 	textField5= new JTextField();
+		
+		JLabel label = new JLabel("学号：");
+		label.setFont(new Font("等线", Font.PLAIN, 20));
+		label.setBounds(20, 70, 110, 30);
+		contentPane.add(label);
+
+		textField1.setBounds(20, 110, 150, 35);
+		contentPane.add(textField1);
+		textField1.setColumns(10);
+
+		JLabel label2 = new JLabel("姓名：");
+		label2.setFont(new Font("等线", Font.PLAIN, 20));
+		label2.setBounds(20, 150, 110, 30);
+		contentPane.add(label2);
+
+		textField2.setColumns(10);
+		textField2.setBounds(20, 180, 150, 35);
+		contentPane.add(textField2);
+
+		JLabel label3 = new JLabel("身高：(m)");
+		label3.setFont(new Font("等线", Font.PLAIN, 20));
+		label3.setBounds(20, 220, 110, 30);
+		contentPane.add(label3);
+
+		textField3.setColumns(10);
+		textField3.setBounds(20, 250, 150, 35);
+		contentPane.add(textField3);
+
+		JLabel label4 = new JLabel("体重：(kg)");
+		label4.setFont(new Font("等线", Font.PLAIN, 20));
+		label4.setBounds(20, 290, 110, 30);
+		contentPane.add(label4);
+
+		textField4.setColumns(10);
+		textField4.setBounds(20, 320, 150, 35);
+		contentPane.add(textField4);
+
+		JLabel label5 = new JLabel("BMI：");
+		label5.setFont(new Font("等线", Font.BOLD, 22));
+		label5.setBounds(20, 360, 110, 30);
+		contentPane.add(label5);
+
+		JTextArea textArea = new JTextArea();
+		textArea.setBounds(20, 390, 150, 30);
+		textArea.setEditable(false);
+		contentPane.add(textArea);
+		
+		JButton button1 = new JButton("提交");
+		button1.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				String ID = textField1.getText();
+				if(isExists(ID)){
+					JOptionPane.showMessageDialog(null,"该学生已存在！","Warning",JOptionPane.WARNING_MESSAGE);
+				}else{
+				String name = textField2.getText();
+				double height = Double.parseDouble(textField3.getText());
+				double weight = Double.parseDouble(textField4.getText());
+				Student student=new Student(ID,name,height,weight);
+				students.add(student);
+				textArea.setText(Double.toString(student.bmi));
+				showStudent();
+				}
+		}
+		});
+		button1.setFont(new Font("等线", Font.PLAIN, 20));
+		button1.setBounds(20, 440, 130, 35);
+		contentPane.add(button1);
+		
+		JLabel label6 = new JLabel("人数：");
+		label6.setFont(new Font("等线", Font.PLAIN, 20));
+		label6.setBounds(20, 480, 150, 30);
+		contentPane.add(label6);
+		
+		textField5.setColumns(10);
+		textField5.setBounds(20,510, 150, 35);
+		contentPane.add(textField5);
+		
+		JButton button2 = new JButton("生成");
+		button2.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				genStudents(Integer.parseInt(textField5.getText()));
+				showStudent();
+				JOptionPane.showMessageDialog(null,"Success!","提示消息",JOptionPane.WARNING_MESSAGE);
+		}
+		});
+		button2.setFont(new Font("等线", Font.PLAIN, 20));
+		button2.setBounds(20,550, 130, 35);
+		contentPane.add(button2);
+
+		showStudent();
+		setContentPane(contentPane);
+		setVisible(true);
+	}
+	
+	public Student inputStudent(String ID,String name,String height,String weight) {
+		double H = Double.parseDouble(height);
+		double W = Double.parseDouble(weight);
+		Student student=new Student(ID,name,H,W);
+		showStudent();
+		return student;
+	}
+
+	public void Statics(int mode) {
+		String mos;
+		IntervalXYDataset t;
+		switch(mode){
+		case 1:
+			mos="身高";
+			t=Data(1);
+			break;
+		case 2:
+			mos="体重";
+			t=Data(2);
+			break;
+		case 3:
+			default:mos="BMI";t=Data(3);
+		}
+		JFreeChart chart = ChartFactory.createXYBarChart(mos+"统计",
+				mos+"分组", false, "学生人数",
+				t, PlotOrientation.VERTICAL,
+				true, false, false);
+			XYPlot xyplot = (XYPlot)chart.getPlot();
+			chart.getTitle().setFont(new Font("等线", Font.BOLD, 25));//设置标题  
+																	//设置图例类别字体           
+			chart.getLegend().setItemFont(new Font("等线", Font.BOLD, 15));
+			xyplot.getRangeAxis().setLabelFont(new Font("等线", Font.PLAIN, 15));//纵轴字体设置
+			xyplot.getRangeAxis().setTickLabelFont(new Font("等线", Font.PLAIN, 15));
+			xyplot.getDomainAxis().setTickLabelFont(new Font("等线", Font.PLAIN, 15));//横轴字体设置
+			xyplot.getDomainAxis().setLabelFont(new Font("等线", Font.PLAIN, 15));
+			
+			ChartFrame frame = new ChartFrame("组别学生人数", chart);
+			frame.pack();
+			frame.setVisible(true);
+	}
+	
+	public IntervalXYDataset Data(int mode) {
+		XYSeriesCollection seriesCollection = new XYSeriesCollection();
+		XYSeries series = new XYSeries("BMI统计");
+		int top=students.size();
+		double min,max;
+		
+		switch(mode){
+		case 1:
+			comparator.SortbyHeight();
+			min = students.get(0).height; max = students.get(top-1).height;
+			break;
+		case 2:
+			comparator.SortbyWeight();
+			min = students.get(0).weight; max =students.get(top-1).weight;
+			
+			break;
+		case 3:
+			default:
+				comparator.SortbyBMI();
+				min = students.get(0).bmi; max =students.get(top-1).bmi;
+		}
+		
+		double range = max - min;
+		double groups = range / 10;
+		int[] count = new int[10];
+
+		for (int i = 0; i<top; i++) {
+			for (int j = 0; j<10; j++) {
+				switch(mode){
+				case 1:
+					if (students.get(i).height >= min + j*groups&&students.get(i).height<min + (j + 1)*groups) {
+						count[j]++;
+					}
+					break;
+				case 2:
+					if (students.get(i).weight >= min + j*groups&&students.get(i).weight<min + (j + 1)*groups) {
+						count[j]++;
+					}
+					break;
+				case 3:
+					default:
+						if (students.get(i).bmi >= min + j*groups&&students.get(i).bmi<min + (j + 1)*groups) {
+							count[j]++;
+						}
 				}
 			}
 		}
-	}
-
-	public class Student{
-	
-		String number="",name="";
-		double height=0.0,weight=0.0,bmi=0.0;
-		
-		public Student(){}
-		public Student(String number,String name,double height,double weight){
-			this.number=number;
-			this.name=name;
-			this.height=(int)(height*100)/100.0;
-			this.weight=(int)(weight*100)/100.0;
-			this.bmi=(int)(weight/(height*height))*100/100.0;
+		count[9]++;
+		for (int j = 0; j<10; j++) {
+			series.add(j + 1, count[j]);
 		}
-		
+		seriesCollection.addSeries(series);
+		return new XYBarDataset(seriesCollection, 0.9);
 	}
-	
-	class resultPanel extends JPanel{
-
-		private static final long serialVersionUID = 1L;
-
-		public resultPanel(JFrame frame) {
-			JTextArea ta= new JTextArea("",20,40);
-			ArrayList<Student> alst= genTestStudents();
-			StringBuffer sb = new StringBuffer();
-			sb.append("ID\tName\tWeight\tHeight\tBMI").append("\n");
-			for(Student st: alst){
-				sb.append(String.format("%s\t%s\t%.2f\t%.2f\t%.2f\r\n", 
-          			  st.number,st.name,st.height,st.weight,st.bmi));
-			}
-			ta.setText(sb.toString());
-			ta.setEditable(false);		
-			frame.add(new JScrollPane(ta));
-		}
-	}
-
-
-
 }

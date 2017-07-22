@@ -1,10 +1,10 @@
-package edu.hit116xxxxxxxx.experiment5;
+package edu.hitXXXX.experimentY;
 
-import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.Scanner;
 
 public class CollectionBMI {
 	
